@@ -2,7 +2,14 @@ let turn = 'X';
 let pinfo = document.getElementById("pinfo");
 let boxes = document.querySelectorAll(".box");
 let resetbtn = document.getElementById("resetbtn");
-
+let p1 = document.getElementById("p1");
+let p2 = document.getElementById("p2");
+let clickaudio = new Audio("click.wav");
+let victoryaudio = new Audio("victory.mp3");
+victoryaudio.loop = true;
+let vimg = document.getElementById("vimg");
+var gameover = false;
+let Mquery = window.matchMedia("(max-width: 620px)");
 
 // for turn change --------
 pinfo.innerText = `Turn : ${turn}`;
@@ -31,30 +38,71 @@ function checkwon() {
     ]
 
     for (let i = 0; i < winp.length; i++) {
-        if ((boxes[winp[i][0]].innerText === boxes[winp[i][1]].innerText) && (boxes[winp[i][1]].innerText === boxes[winp[i][2]].innerText) && (boxes[winp[i][0]].innerText != ''))
-        {
-            pinfo.innerText = boxes[winp[i][0]].innerText+ " win";
-            return;
+        if ((boxes[winp[i][0]].innerText === boxes[winp[i][1]].innerText) && (boxes[winp[i][1]].innerText === boxes[winp[i][2]].innerText) && (boxes[winp[i][0]].innerText != '')) {
+            victoryaudio.play();
+
+            if (Mquery.matches) {
+                vimg.style.width = "5rem";
+            } else {
+                vimg.style.width = "10rem";
+            }
+
+            clickaudio.pause();
+            gameover = true;
+
+            // declaring won --------
+            if (boxes[winp[i][0]].innerText === "X") {
+                pinfo.innerText = player1 + " won";
+            } else {
+                pinfo.innerText = player2 + " won";
+            }
+            
         }
     }
 }
 
+// for create player name -----
+
+let player1 = prompt("create player 1 name", "Player 1" );
+let player2 = prompt("create player 2 name", "Player 2" );
+
+p1.innerText = player1 + ": X";
+p2.innerText = player2 + ": O";
 
 // main function -------
 
 boxes.forEach(box => {
-    box.addEventListener('click', function color() {
-        if (box.innerHTML == '') {
-            box.innerHTML = turn;
-            turnchange();
-            checkwon();
-        }
-    });
-
-    resetbtn.addEventListener("click", reset = () =>{
+    
+    //function for reset -------
+    function reset() {
+        gameover = false;
+        vimg.style.width = "0rem";
+        victoryaudio.pause();
         box.innerHTML = '';
         turn = 'X';
         pinfo.innerText = `Turn : ${turn}`;
+    }
+    
+    
+    // for play--------
+    box.addEventListener('click', function main() {
+        if (box.innerHTML == '') {
+            clickaudio.play();
+            box.innerHTML = turn;
+            turnchange();
+            checkwon();
+
+        }
+        // reset after 10sec -----
+        if (gameover ===true) {
+            setTimeout(() => {
+                resetbtn.click()
+            }, 5000);
+        }
+
     });
 
+    resetbtn.addEventListener("click", reset);
+
 });
+
